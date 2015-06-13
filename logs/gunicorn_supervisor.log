@@ -1,0 +1,49 @@
+Traceback (most recent call last):
+  File "/webapps/server/main.py", line 13, in <module>
+    application.listen(8888)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/web.py", line 1788, in listen
+    server.listen(port, address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/tcpserver.py", line 126, in listen
+    sockets = bind_sockets(port, address=address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/netutil.py", line 187, in bind_sockets
+    sock.bind(sockaddr)
+  File "/usr/lib/python2.7/socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+socket.error: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "/webapps/server/main.py", line 13, in <module>
+    application.listen(8888)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/web.py", line 1788, in listen
+    server.listen(port, address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/tcpserver.py", line 126, in listen
+    sockets = bind_sockets(port, address=address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/netutil.py", line 187, in bind_sockets
+    sock.bind(sockaddr)
+  File "/usr/lib/python2.7/socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+socket.error: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "/webapps/server/main.py", line 13, in <module>
+    application.listen(8888)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/web.py", line 1788, in listen
+    server.listen(port, address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/tcpserver.py", line 126, in listen
+    sockets = bind_sockets(port, address=address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/netutil.py", line 187, in bind_sockets
+    sock.bind(sockaddr)
+  File "/usr/lib/python2.7/socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+socket.error: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "/webapps/server/main.py", line 13, in <module>
+    application.listen(8888)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/web.py", line 1788, in listen
+    server.listen(port, address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/tcpserver.py", line 126, in listen
+    sockets = bind_sockets(port, address=address)
+  File "/webapps/server/venv/local/lib/python2.7/site-packages/tornado/netutil.py", line 187, in bind_sockets
+    sock.bind(sockaddr)
+  File "/usr/lib/python2.7/socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+socket.error: [Errno 98] Address already in use
+WARNING:tornado.access:404 GET /favicon.ico (104.251.99.162) 0.26ms
