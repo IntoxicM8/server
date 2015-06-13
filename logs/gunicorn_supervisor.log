@@ -47,3 +47,19 @@ Traceback (most recent call last):
     return getattr(self._sock,name)(*args)
 socket.error: [Errno 98] Address already in use
 WARNING:tornado.access:404 GET /favicon.ico (104.251.99.162) 0.26ms
+  File "/webapps/server/main.py", line 12
+    if __name__ == "__main__"
+                            ^
+SyntaxError: invalid syntax
+  File "/webapps/server/main.py", line 12
+    if __name__ == "__main__"
+                            ^
+SyntaxError: invalid syntax
+  File "/webapps/server/main.py", line 12
+    if __name__ == "__main__"
+                            ^
+SyntaxError: invalid syntax
+  File "/webapps/server/main.py", line 12
+    if __name__ == "__main__"
+                            ^
+SyntaxError: invalid syntax
