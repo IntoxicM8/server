@@ -1,22 +1,23 @@
 import tornado.ioloop
 import tornado.web
+import const
 
 from handlers import *
 from pymongo import MongoClient
 
 application = tornado.web.Application([
-	(r"/user/", UserHandler),
-	(r"/data/", DataHandler),
-	(r"/confirm/", ConfirmHandler),
+	(r"/users/([a-z0-9\-]+)/?", UserHandler),
+	(r"/data/?", DataHandler),
+	(r"/confirms/?", ConfirmHandler),
 ])
 
-client = MongoClient('mongodb://naren:wojtechnology@ds063140.mongolab.com:63140')
+client = MongoClient(const.MONGO_URL)
 db = client['db']
 
-users = db['users']
-user_data = db['user_data']
-locations = db['locations']
-
 if __name__ == "__main__":
+	application.users = db['users']
+	application.user_data = db['user_data']
+	application.request_data = db['request_data']
+	application.locations = db['locations']
 	application.listen(8888)
-    	tornado.ioloop.IOLoop.current().start()
+	tornado.ioloop.IOLoop.current().start()
