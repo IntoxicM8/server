@@ -1,4 +1,4 @@
-#!/webapps/server/venv/bin/python
+#!/Users/wojtekswiderski/Documents/GitHub/server/venv/bin/python
 
 # -*- coding: utf-8 -*-
 import re
