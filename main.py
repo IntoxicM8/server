@@ -19,4 +19,4 @@ locations = db['locations']
 
 if __name__ == "__main__":
 	application.listen(8888)
-    	tornado.ioloop.IOLoop.current().start()
+	tornado.ioloop.IOLoop.current().start()

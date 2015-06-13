@@ -1,6 +1,8 @@
 # Main file used for the endpoints
 import tornado.web
 
+from google.google_places import *
+
 class BaseHandler(tornado.web.RequestHandler):
 	pass
 
@@ -14,7 +16,7 @@ class UserHandler(BaseHandler):
 
 class DataHandler(BaseHandler):
 	def post(self):
-		self.write("Penis")
+		self.write(GooglePlaces.get_nearest_general(43.6471642, -79.38705139999999))
 
 class ConfirmHandler(BaseHandler):
 	def post(self):
