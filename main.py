@@ -8,8 +8,6 @@ import logging
 from handlers import *
 
 
-
-
 class App(Application):
     def __init__(self, **overrides):
         handlers = [

@@ -2,6 +2,8 @@ import tornado.web
 import const
 from pymongo import MongoClient
 
+from google.google_places import *
+
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.db = self.application.client['database']
@@ -38,6 +40,8 @@ class DataHandler(BaseHandler):
             Either math or ML, whatever
         '''
 
+        self.write(GooglePlaces.get_nearest_general(43.6471642, -79.38705139999999))
+
 class ConfirmHandler(BaseHandler):
     def post(self):
-        data = tornado.escape.json_decode(self.request.body)
+        self.write("Naren is gay")
