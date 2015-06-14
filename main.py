@@ -13,7 +13,7 @@ class App(Application):
         handlers = [
             (r"/users/?", UserHandler),
             (r"/data/?", DataHandler),
-            (r"/confirms/?", ConfirmHandler),
+            (r"/confirm/?", ConfirmHandler),
         ]
 
         Application.__init__(self, handlers)

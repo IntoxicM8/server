@@ -161,12 +161,17 @@ class DataHandler(BaseHandler):
         if found:
             exist = self.locations.count({'place_id': closest_place['place_id']})
             if exist:
-                exist = self.locations.find({'place_id': closest_place['place_id']})
-                count = exist[0]['count'] + 1
-                res = self.locations.update_one({'place_id': closest_place['place_id']}, {'$inc': {'count': count}})
+                res = self.locations.update_one({'place_id': closest_place['place_id']}, {'$inc': {'count': 1}})
             else:
                 self.locations.insert_one({'place_id': closest_place['place_id'], 'count': 1})
 
 class ConfirmHandler(BaseHandler):
     def post(self):
-        self.write("Naren is gay")
+        conf = tornado.escape.json_decode(self.request.body)
+        print conf
+        if conf['correct'] == False:
+            location = self.locations.find({'place_id': conf['place_id']})[0]
+            if location['count'] > 1:
+                self.locations.update_one({'place_id': conf['place_id']}, {'$inc': {'count': -1}})
+            else:
+                self.locations.remove(location)
