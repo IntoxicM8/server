@@ -83,6 +83,7 @@ class GooglePlaces():
             }
         results = json.loads(requests.get(url, params = params).content)['results']
 
+
         places = []
         for result in results:
             place = {

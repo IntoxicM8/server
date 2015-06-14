@@ -89,6 +89,7 @@ class DataHandler(BaseHandler):
 
 
     def post(self):
+        import pdb; pdb.set_trace()
         data = tornado.escape.json_decode(self.request.body)
         uuid = data['uuid']
         _lng = float(data['lng'])
@@ -218,7 +219,6 @@ class DataHandler(BaseHandler):
             else:
                 self.locations.insert_one({'place_id': closest_place['place_id'], 'count': 1})
 
-        print data_point
         if response['drunk'] == True:
             data_point['rating'] = 2
             self.request_data.insert_one(data_point)
