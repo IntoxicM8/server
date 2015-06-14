@@ -4,22 +4,20 @@ import tornado.web
 from google.google_places import *
 
 class BaseHandler(tornado.web.RequestHandler):
-	pass
+    pass
 
 class UserHandler(BaseHandler):
-	def get(self):
-		self.write("fuckboi")
+    def get(self):
+        self.write("fuckboi")
 
-	def post(self):
-		self.write("New User")
+    def post(self):
+        self.write("New User")
 
 
 class DataHandler(BaseHandler):
-	def post(self):
-		self.write(GooglePlaces.get_nearest_general(43.6471642, -79.38705139999999))
+    def post(self):
+        self.write(GooglePlaces.get_nearest_general(43.6471642, -79.38705139999999))
 
 class ConfirmHandler(BaseHandler):
-	def post(self):
-		self.write("Naren is gay")
-
-
+    def post(self):
+        self.write("Naren is gay")
