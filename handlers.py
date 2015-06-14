@@ -90,7 +90,6 @@ class DataHandler(BaseHandler):
 
 
     def post(self):
-        import pdb; pdb.set_trace()
         data = tornado.escape.json_decode(self.request.body)
         uuid = data['uuid']
         _lng = float(data['lng'])
