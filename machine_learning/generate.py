@@ -52,6 +52,9 @@ def rnJesus():
 
 def save():
 	f = open('data.json', 'w')
-	f.write(json.dumps(generate(10000)))
+	data = generate(10000)
+	for dat in data:
+		print dat[0]
+	f.write(json.dumps(data))
 
 save()

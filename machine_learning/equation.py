@@ -12,8 +12,8 @@ def tolerance(x):
 
 def bpm_percent(x):
     if x > 1.5:
-        return 1
-	return 6/x - 2
+        return 1.0
+    return 6/x - 2
 
 def time_of_day(x):
     if x > 12:
@@ -40,10 +40,10 @@ def proximity_func_danger(x, count):
 def age_func(x):
     if x < 12:
         return x/17
-    elif x < 25:
+    elif x <25:
         return pow(x-12,1.7)/8.5 + 12/17
     elif x < 65:
         return -10*x/55 + 160/11
     else:
-        return 1
+        return 0
 
