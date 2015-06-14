@@ -6,6 +6,8 @@ import dateutil.parser
 import math
 from pymongo import MongoClient
 
+from machine_learning.ml import Learn
+
 from google_api.google_places import *
 from google_api.google_utils import get_distance
 
@@ -24,12 +26,13 @@ class BaseHandler(tornado.web.RequestHandler):
         self.user_data = self.db['user_data']
         self.request_data = self.db['request_data']
         self.locations = self.db['locations']
+        self.trained_data = self.db['trained_data']
         self.g = GooglePlaces()
 
 
 class UserHandler(BaseHandler):
     def get(self):
-        uuid = int(self.get_argument('uuid'))
+        uuid = self.get_argument('uuid')
         user_data = self.user_data.find({'uuid': uuid})[0]
         user_data.pop('_id', None)
         self.write(json.dumps(user_data))
@@ -193,24 +196,33 @@ class DataHandler(BaseHandler):
 
         #age factor
         age_factor = self.age_func(age)
-        print age_factor
-        print tod_factor
-        print bpm_factor
-        print tol_factor
-        print gen_factor
-        print dow_factor
-        print dist_factor
-        result = float(age_factor * tod_factor * bpm_factor * tol_factor * gen_factor * dow_factor * dist_factor)
         print result
-        response = {'place_id': place_id}
 
-        if result >= 30:
+        params = [
+                data_point['weekday'],
+                data_point['gender'],
+                data_point['tol'],
+                data_point['bpm'],
+                data_point['hour'],
+                data_point['prox_bar'],
+                data_point['prox_night'],
+                data_point['prox_casino'],
+                data_point['prox_danger'],
+                data_point['count'],
+                data_point['age']
+            ]
+        #learn = Learn(uuid, self.request_data, self.trained_data)
+        #result = learn.predict(params)
+
+        #print result
+
+        response = {'place_id': place_id}
+        response['drunk'] = True
+        '''if result >= 30:
             response['drunk'] = True
         else:
-            response['drunk'] = False
+            response['drunk'] = False'''
         self.write(json.dumps(response))
-
-        data_point['count'] = 0
 
         if found:
             exist = self.locations.count({'place_id': closest_place['place_id']})
@@ -229,7 +241,6 @@ class ConfirmHandler(BaseHandler):
         uuid = conf['uuid']
         timestamp = conf['timestamp']
         rating = conf['rating']
-        print self.request_data.find({'uuid' : uuid, 'timestamp' : timestamp})[0]
         request = self.request_data.update_one({'uuid' : uuid, 'timestamp' : timestamp}, {'$set': {'rating' : rating}})
         if rating == 0:
             location = self.locations.find({'place_id': conf['place_id']})[0]

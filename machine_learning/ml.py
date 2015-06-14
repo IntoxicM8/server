@@ -7,9 +7,10 @@ class Learn():
 
 	TRAINED_DATA = 'data.json'
 
-	def __init__(self, uuid, request_data):
+	def __init__(self, uuid, request_data, trained_data):
 		self.uuid = uuid
 		self.request_data = request_data
+		self.trained_data = trained_data
 
 	def train_data(self):
 		data = self.get_user_data()
@@ -26,7 +27,7 @@ class Learn():
 			print str(y[i]) + ': ' + str(clf.predict(x[i]))
 
 	def predict(self, data_point):
-		pass
+		return clf.predict(data_point)
 
 	def get_user_data(self):
 		objs = self.request_data.find({'uuid' : self.uuid})
@@ -54,7 +55,7 @@ class Learn():
 		obj = json.loads(f.read())
 		return obj
 
-db = MongoClient('ds063140.mongolab.com', 63140)['database']
+'''db = MongoClient('ds063140.mongolab.com', 63140)['database']
 db.authenticate("naren", "wojtechnology")
 learn = Learn(1338, db['request_data'])
-learn.train_data()
+learn.train_data()'''
