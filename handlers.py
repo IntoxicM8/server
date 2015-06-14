@@ -60,9 +60,9 @@ class DataHandler(BaseHandler):
     def age_func(x):
         if x < 12:
             return x/17
-        elif 12 <= x and x <25
+        elif 12 <= x and x <25:
             return pow(x-12,1.7)/8.5 + 12/17
-        else
+        else:
             return -10*x/55 + 160/11
 
     def post(self):
@@ -144,11 +144,11 @@ class DataHandler(BaseHandler):
         result = float(age_factor * tod_factor * bpm_factor * tol_factor * gen_factor * dow_factor * dist_factor)
         
         response = {'place_id': place_id}
-        
+
         if result >= 0.7:
-            response{'drunk': True}
+            response['drunk'] = True
         else:
-            response{'drunk': False}
+            response['drunk'] = False
 
         self.write(json.dumps(response))
 
