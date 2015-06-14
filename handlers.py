@@ -52,21 +52,24 @@ class DataHandler(BaseHandler):
         return 0.1
 
     def proximity_func_bar(self, x):
-        return math.exp(-1.0*x*x/8192)*4
+        return math.exp(-1.0*x*x/8192)*4 + 1
 
     def proximity_func_nightclub(self, x):
-        return math.exp(-1.0*x*x/8192)*4
+        return math.exp(-1.0*x*x/8192)*4 + 1
 
     def proximity_func_casino(self, x):
-        return math.exp(-1.0*x*x/8192)*2
+        return math.exp(-1.0*x*x/8192)*2 + 1
 
     def age_func(self, x):
         if x < 12:
             return x/17
-        elif 12 <= x and x <25:
+        elif x < 25:
             return pow(x-12,1.7)/8.5 + 12/17
-        else:
+        elif x < 65:
             return -10*x/55 + 160/11
+        else:
+            return 1
+
 
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
@@ -103,6 +106,7 @@ class DataHandler(BaseHandler):
         if found:
             place_id = closest_place['place_id']
             distance = get_distance(_lat, _lng, closest_place['lat'], closest_place['lng'])
+
         else:
             distance = 69696969696969.420 #blaze
 
@@ -111,7 +115,8 @@ class DataHandler(BaseHandler):
         elif 'casino' in closest_place['types']:
             dist_factor = self.proximity_func_casino(distance)
         else:
-            dist_factor = 1
+            dist_factor = self.proximity_func_casino(distance)
+
 
         # get day of week factor
         dow_factor = self.day_of_week(timestamp.weekday())
@@ -136,28 +141,25 @@ class DataHandler(BaseHandler):
 
         #time of day shit
         hour = timestamp.hour
-        if hour > 2:
+        if hour > 12:
             hour = hour - 24
 
         tod_factor = self.time_of_day(hour)
 
         #age factor
         age_factor = self.age_func(age)
-
         result = float(age_factor * tod_factor * bpm_factor * tol_factor * gen_factor * dow_factor * dist_factor)
         print result
         response = {'place_id': place_id}
 
-        if result >= 0.7:
+        if result >= 30:
             response['drunk'] = True
         else:
             response['drunk'] = False
-        print(response)
         self.write(json.dumps(response))
 
         if found:
             exist = self.locations.count({'place_id': closest_place['place_id']})
-            print(exist)
             if exist:
                 exist = self.locations.find({'place_id': closest_place['place_id']})
                 count = exist[0]['count'] + 1
