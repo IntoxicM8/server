@@ -1,6 +1,6 @@
 import json
 from pymongo import *
-
+import numpy as np
 from sklearn import svm
 
 class Learn():
@@ -12,28 +12,42 @@ class Learn():
 		self.request_data = request_data
 
 	def train_data(self):
-		pass
+		data = self.get_user_data()
+		x = []
+		y = []
+		for dat in data:
+			y.append(dat[0])
+			x.append(dat[1])
+
+		clf = svm.SVC()
+		clf.fit(x, y) 
+
+		for i in range(len(data)):
+			print str(y[i]) + ': ' + str(clf.predict(x[i]))
 
 	def predict(self, data_point):
 		pass
 
 	def get_user_data(self):
-		if self.request_data.count({'uuid' : self.uuid}) == 0:
-			return []
-		obj = self.request_data.find({'uuid' : self.uuid})[0]
-		params = [
-			obj['weekday'],
-			obj['gender'],
-			obj['tol'],
-			obj['bpm'],
-			obj['hour'],
-			obj['prox_bar'],
-			obj['prox_night'],
-			obj['prox_casino'],
-			obj['prox_danger'],
-			obj['age']
-		]
-		return [obj['rating'], params]
+		objs = self.request_data.find({'uuid' : self.uuid})
+		data = self.get_default_data()
+		for obj in objs:
+			params = [
+				obj['weekday'],
+				obj['gender'],
+				obj['tol'],
+				obj['bpm'],
+				obj['hour'],
+				obj['prox_bar'],
+				obj['prox_night'],
+				obj['prox_casino'],
+				obj['prox_danger'],
+				obj['count'],
+				obj['age']
+			]
+			data.append([obj['rating'], params])
+
+		return data
 
 	def get_default_data(self):
 		f = open(Learn.TRAINED_DATA, 'r')
@@ -43,6 +57,4 @@ class Learn():
 db = MongoClient('ds063140.mongolab.com', 63140)['database']
 db.authenticate("naren", "wojtechnology")
 learn = Learn(1338, db['request_data'])
-#print learn.get_default_data()
-print learn.get_default_data()
-print learn.get_user_data()
+learn.train_data()
