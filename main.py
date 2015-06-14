@@ -19,7 +19,7 @@ class App(Application):
         ]
 
         Application.__init__(self, handlers)
-        self.client = MongoClient(const.MONGO_URL)
+        self.client = MongoClient('ds063140.mongolab.com', 63140)
 
 
 if __name__ == "__main__":

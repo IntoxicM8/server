@@ -4,7 +4,8 @@ from pymongo import MongoClient
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
-        self.db = self.application.client['db']
+        self.db = self.application.client['database']
+        self.db.authenticate('naren', 'wojtechnology')
         self.user_data = self.db['user_data']
         self.request_data = self.db['request_data']
         self.locations = self.db['locations']
