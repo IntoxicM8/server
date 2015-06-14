@@ -91,8 +91,8 @@ class DataHandler(BaseHandler):
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
         uuid = data['uuid']
-        _lng = data['lng']
-        _lat = data['lat']
+        _lng = float(data['lng'])
+        _lat = float(data['lat'])
         timestamp = dateutil.parser.parse(data['timestamp'])
         bpm = data['bpm']
 
@@ -172,16 +172,10 @@ class DataHandler(BaseHandler):
             data_point['gender'] = 1
 
         #get tolerance fact
-        if tolerance.lower() == 'h':
-            tol_factor = self.tolerance(0)
-            data_point['tol'] = 0
-        elif tolerance.lower() == 'm':
-            tol_factor = self.tolerance(1)
-            data_point['tol'] = 1
-        else:
-            tol_factor = self.tolerance(2)
-            data_point['tol'] = 2
-
+        tolerance = 2 - tolerance
+        tol_factor = self.tolerance(tolerance)
+        data_point['tol'] = tolerance
+        
         #get bpm shit
         percent_bpm = float(bpm) / resting_bpm
         data_point['bpm'] = percent_bpm
@@ -198,6 +192,13 @@ class DataHandler(BaseHandler):
 
         #age factor
         age_factor = self.age_func(age)
+        print age_factor
+        print tod_factor
+        print bpm_factor
+        print tol_factor
+        print gen_factor
+        print dow_factor
+        print dist_factor
         result = float(age_factor * tod_factor * bpm_factor * tol_factor * gen_factor * dow_factor * dist_factor)
         print result
         response = {'place_id': place_id}
@@ -217,6 +218,7 @@ class DataHandler(BaseHandler):
             else:
                 self.locations.insert_one({'place_id': closest_place['place_id'], 'count': 1})
 
+        print data_point
         if response['drunk'] == True:
             data_point['rating'] = 2
             self.request_data.insert_one(data_point)
