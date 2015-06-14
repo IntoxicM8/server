@@ -12,6 +12,12 @@ from google_api.google_utils import get_distance
 FAR = 69696969696969.420
 
 class BaseHandler(tornado.web.RequestHandler):
+
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD")
+        self.set_header("Content-Type", "application/json")
+
     def initialize(self):
         self.db = self.application.client['database']
         self.db.authenticate(const.USERNAME, const.PASSWORD)
@@ -31,7 +37,7 @@ class UserHandler(BaseHandler):
     def post(self):
         new_user = tornado.escape.json_decode(self.request.body)
         self.user_data.insert_one(new_user)
-        self.write('shit worked')
+        self.write(json.dumps({'shit': 'works'}))
 
 
 class DataHandler(BaseHandler):
