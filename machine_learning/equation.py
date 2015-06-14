@@ -11,7 +11,9 @@ def tolerance(x):
 	return 0.8 + x*0.2
 
 def bpm_percent(x):
-	return 3/x - 2
+    if x > 1.5:
+        return 1
+	return 6/x - 2
 
 def time_of_day(x):
     if x > 12:
