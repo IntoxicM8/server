@@ -9,6 +9,8 @@ from pymongo import MongoClient
 from google_api.google_places import *
 from google_api.google_utils import get_distance
 
+FAR = 69696969696969.420
+
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.db = self.application.client['database']
@@ -33,6 +35,7 @@ class UserHandler(BaseHandler):
 
 
 class DataHandler(BaseHandler):
+
     def day_of_week(self, x):
         efunc = math.exp(-1*pow(x - 5.3, 2)/1.5)
         return 1+efunc
@@ -44,7 +47,9 @@ class DataHandler(BaseHandler):
         return 0.8 + x*0.2
 
     def bpm_percent(self, x):
-        return 3/x - 2
+        if x > 1.5:
+            return 1.0
+        return 6/x - 2
 
     def time_of_day(self, x):
         if -6 < x and x < 6:
@@ -59,6 +64,12 @@ class DataHandler(BaseHandler):
 
     def proximity_func_casino(self, x):
         return math.exp(-1.0*x*x/8192)*2 + 1
+
+    def proximity_func_danger(x, count):
+        if count < 1:
+            return 1
+        multiplier = ((-1)/x+2)/2
+        return math.exp(-1.0*x*x/8192)*4 * multiplier + 1
 
     def age_func(self, x):
         if x < 12:
@@ -85,11 +96,25 @@ class DataHandler(BaseHandler):
         tolerance = user_data['tolerance']
         resting_bpm = user_data['bpm']
 
+        data_point = {
+            'uuid' : uuid,
+            'timestamp' : data['timestamp'],
+            'tolerance' : tolerance,
+            'age' : age,
+            'gender' : gender,
+        }
 
         # get location factor
         nearby = self.g.get_high_priority(_lat, _lng)
         found = True
         place_id = None
+        distance =  FAR #blaze
+        count = 0
+
+        data_point['prox_bar'] = FAR
+        data_point['prox_danger'] = FAR
+        data_point['prox_night'] = FAR
+        data_point['prox_casino'] = FAR
 
         if nearby:
             closest_place = nearby[0]
@@ -97,52 +122,71 @@ class DataHandler(BaseHandler):
         else:
             nearby = self.g.get_nearest_general(_lat, _lng)
             for place in nearby:
-                nearby_in_db = self.locations.count({'place_id': place['place_id']})
+                count = self.locations.count({'place_id': place['place_id']})
                 if count:
                     closest_place = place
                     break
             found = False
 
+        data_point['count'] = count
+
         if found:
             place_id = closest_place['place_id']
             distance = get_distance(_lat, _lng, closest_place['lat'], closest_place['lng'])
 
-        else:
-            distance = 69696969696969.420 #blaze
-
-        if 'bar' or 'nightclub' in closest_place['types']:
+        if 'bar' in closest_place['types']:
             dist_factor = self.proximity_func_bar(distance)
+            data_point['prox_bar'] = distance
+        elif 'nightclub' in closest_place['types']:
+            dist_factor = self.proximity_func_nightclub(distance)
+            data_point['prox_night'] = distance
         elif 'casino' in closest_place['types']:
             dist_factor = self.proximity_func_casino(distance)
+            data_point['prox_casino'] = distance
         else:
             dist_factor = self.proximity_func_casino(distance)
-
+            data_point['prox_danger'] = distance
 
         # get day of week factor
+        weekday = timestamp.weekday()
+        if weekday == 6:
+            weekday = 0
+        else:
+            weekday += 1
         dow_factor = self.day_of_week(timestamp.weekday())
+
+        data_point['weekday'] = weekday
 
         #get gen fact
         if gender.lower() == 'male':
             gen_factor = self.gender_func(0)
+            data_point['gender'] = 0
         else:
             gen_factor = self.gender_func(1)
+            data_point['gender'] = 1
 
         #get tolerance fact
         if tolerance.lower() == 'h':
             tol_factor = self.tolerance(0)
+            data_point['tol'] = 0
         elif tolerance.lower() == 'm':
             tol_factor = self.tolerance(1)
+            data_point['tol'] = 1
         else:
             tol_factor = self.tolerance(2)
+            data_point['tol'] = 2
 
         #get bpm shit
         percent_bpm = float(bpm) / resting_bpm
+        data_point['bpm'] = percent_bpm
         bpm_factor = self.bpm_percent(percent_bpm)
 
         #time of day shit
         hour = timestamp.hour
         if hour > 12:
             hour = hour - 24
+
+        data_point['hour'] = hour
 
         tod_factor = self.time_of_day(hour)
 
@@ -158,6 +202,8 @@ class DataHandler(BaseHandler):
             response['drunk'] = False
         self.write(json.dumps(response))
 
+        data_point['count'] = 0
+
         if found:
             exist = self.locations.count({'place_id': closest_place['place_id']})
             if exist:
@@ -165,11 +211,19 @@ class DataHandler(BaseHandler):
             else:
                 self.locations.insert_one({'place_id': closest_place['place_id'], 'count': 1})
 
+        if response['drunk'] == True:
+            data_point['rating'] = 2
+            self.request_data.insert_one(data_point)
+
 class ConfirmHandler(BaseHandler):
     def post(self):
         conf = tornado.escape.json_decode(self.request.body)
-        print conf
-        if conf['correct'] == False:
+        uuid = conf['uuid']
+        timestamp = conf['timestamp']
+        rating = conf['rating']
+        print self.request_data.find({'uuid' : uuid, 'timestamp' : timestamp})[0]
+        request = self.request_data.update_one({'uuid' : uuid, 'timestamp' : timestamp}, {'$set': {'rating' : rating}})
+        if rating == 0:
             location = self.locations.find({'place_id': conf['place_id']})[0]
             if location['count'] > 1:
                 self.locations.update_one({'place_id': conf['place_id']}, {'$inc': {'count': -1}})
