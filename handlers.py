@@ -2,7 +2,7 @@ import tornado.web
 import const
 from pymongo import MongoClient
 
-from google.google_places import *
+from google_api.google_places import *
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
