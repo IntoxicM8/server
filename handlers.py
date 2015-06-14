@@ -29,7 +29,7 @@ class UserHandler(BaseHandler):
     def post(self):
         new_user = tornado.escape.json_decode(self.request.body)
         self.user_data.insert_one(new_user)
-        self.write('shit worked')
+        self.write(json.dumps({'success': True}))
 
 
 class DataHandler(BaseHandler):
