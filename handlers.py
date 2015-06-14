@@ -102,7 +102,7 @@ class DataHandler(BaseHandler):
 
         user_data = self.user_data.find({'uuid': uuid})[0]
         gender = user_data['gender']
-        age = 25
+        age = user_data['age']
         tolerance = user_data['tolerance']
         resting_bpm = user_data['bpm']
 
