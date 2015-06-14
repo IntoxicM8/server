@@ -15,7 +15,9 @@ class BaseHandler(tornado.web.RequestHandler):
 class UserHandler(BaseHandler):
     def get(self):
         uuid = self.get_arguments('uuid')
-        self.write(json.dumps(self.user_data.find_one({'uuid': uuid})))
+        user_data = json.dumps(self.user_data.find_one({'uuid': uuid}))
+        print(user_data)
+        self.write(user_data)
 
     def post(self):
         #Creates a new user
