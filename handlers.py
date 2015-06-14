@@ -7,7 +7,7 @@ from google_api.google_places import *
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.db = self.application.client['database']
-        self.db.authenticate('naren', 'wojtechnology')
+        self.db.authenticate(const.USERNAME, const.PASSWORD)
         self.user_data = self.db['user_data']
         self.request_data = self.db['request_data']
         self.locations = self.db['locations']
