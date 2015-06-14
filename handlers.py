@@ -196,7 +196,6 @@ class DataHandler(BaseHandler):
 
         #age factor
         age_factor = self.age_func(age)
-        print result
 
         params = [
                 data_point['weekday'],
@@ -211,10 +210,11 @@ class DataHandler(BaseHandler):
                 data_point['count'],
                 data_point['age']
             ]
-        #learn = Learn(uuid, self.request_data, self.trained_data)
-        #result = learn.predict(params)
+        learn = Learn(uuid, self.request_data, self.trained_data)
+        result = learn.train_data()
+        result = learn.predict(params)
 
-        #print result
+        print result
 
         response = {'place_id': place_id}
         response['drunk'] = True
