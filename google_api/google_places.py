@@ -78,7 +78,8 @@ class GooglePlaces():
             'key' : GooglePlaces.GOOGLE_API_KEY,
             'location' : '{0},{1}'.format(lat, lng),
             'rankby' : 'distance',
-            'types' : '|'.join(types)
+            'types' : '|'.join(types),
+            'opennow': True
             }
         results = json.loads(requests.get(url, params = params).content.decode())['results']
 

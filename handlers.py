@@ -1,6 +1,7 @@
 import tornado.web
 import const
 import json
+import datetime
 from pymongo import MongoClient
 
 from google_api.google_places import *
@@ -12,6 +13,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.user_data = self.db['user_data']
         self.request_data = self.db['request_data']
         self.locations = self.db['locations']
+        self.g = GooglePlaces()
 
 
 class UserHandler(BaseHandler):
@@ -28,12 +30,135 @@ class UserHandler(BaseHandler):
 
 
 class DataHandler(BaseHandler):
+    def day_of_week(x):
+        efunc = exp(-1*pow(x - 5.3, 2)/1.5)
+        return 1+efunc
+
+    def gender_func(x):
+        return x*0.2 + 1
+
+    def tolerance(x):
+        return 0.8 + x*0.2
+
+    def bpm_percent(x):
+        return 3/x - 2
+
+    def time_of_day(x):
+        if -6 < x and x < 6:
+            return math.exp(-1.0*x*x/20)*1.5
+        return 0.1
+
+    def proximity_func_bar(x):
+        return math.exp(-1.0*x*x/8192)*4
+
+    def proximity_func_nightclub(x):
+        return math.exp(-1.0*x*x/8192)*4
+
+    def proximity_func_casino(x):
+        return math.exp(-1.0*x*x/8192)*2
+
+    def age_func(x):
+        if x < 12:
+            return x/17
+        elif 12 <= x and x <25
+            return pow(x-12,1.7)/8.5 + 12/17
+        else
+            return -10*x/55 + 160/11
+
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
-        self.request_data.insert_one(data)
-        user = user_data.find({'uuid': data['uuid']})
-        self.write(GooglePlaces.get_nearest_general(43.6471642, -79.38705139999999))
+        uuid = data['uuid']
+        _lng = data['lng']
+        _lat = data['lat']
+        timestamp = data['timestamp']
+        bpm = data['bpm']
 
+        user_data = self.user_data.find({'uuid': uuid})[0]
+        gender = user_data['gender']
+        age = user_data['age']
+        tolerance = user_data['tolerance']
+        resting_bpm = user_data['bpm']
+
+
+        # get location factor
+        nearby = self.g.get_high_priority(_lat, _lng)
+        found = True
+        place_id = None
+
+        if nearby:
+            closest_place = nearby[0]
+
+        else:
+            nearby = self.g.get_nearest_general(_lat, _lng)
+            for place in nearby:
+                nearby_in_db = self.locations.count({'place_id': place['place_id']})
+                if count:
+                    closest_place = place
+                    break
+            found = False
+
+        if found:
+            place_id = closest_place['place_id']
+            distance = get_distance(_lat, _lng, closest_place['lat'], closest_place['lng'])
+        else:
+            distance = 69696969696969.420 #blaze
+
+        if 'bar' or 'nightclub' in closest_place['types']:
+            dist_factor = proximity_func_bar(distance)
+        elif 'casino' in closest_place['types']:
+            dist_factor = proximity_func_casino(distance)
+        else:
+            dist_factor = 1
+
+        # get day of week factor
+        dow_factor = day_of_week(timestamp.weekday())
+
+        #get gen fact
+        if gender.lower() == 'male':
+            gen_factor = gender_func(0)
+        else:
+            gen_factor = gender_func(1)
+
+        #get tolerance fact
+        if tolerance.lower() == 'h':
+            tol_factor = tolerance(0)
+        elif tolerance.lower() == 'm':
+            tol_factor = tolerance(1)
+        else:
+            tol_factor = tolerance(2)
+
+        #get bpm shit
+        percent_bpm = float(bpm) / resting_bpm
+        bpm_factor = bpm_percent(percent_bpm)
+
+        #time of day shit
+        hour = timestamp.hour
+        if hour > 2:
+            hour = hour - 24
+
+        tod_factor = time_of_day(hour)
+
+        #age factor
+        age_factor = age_func(age)
+
+        result = float(age_factor * tod_factor * bpm_factor * tol_factor * gen_factor * dow_factor * dist_factor)
+        
+        response = {'place_id': place_id}
+        
+        if result >= 0.7:
+            response{'drunk': True}
+        else:
+            response{'drunk': False}
+
+        self.write(json.dumps(response))
+
+        if found:
+            exist = self.locations.find({'place_id': closest_place['place_id']})
+            if exist:
+                count = exist[0]['count'] + 1
+                res = self.locations.update_one({'place_id': closest_place['place_id']}, {'count': count})
+            else:
+                self.user_data.insert_one({'place_id': closest_place['place_id'], 'count': 0})
 
 class ConfirmHandler(BaseHandler):
     def post(self):
