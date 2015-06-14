@@ -31,7 +31,7 @@ class DataHandler(BaseHandler):
     def post(self):
         data = tornado.escape.json_decode(self.request.body)
         self.request_data.insert_one(data)
-
+        user = user_data.find({'uuid': data['uuid']})
         self.write(GooglePlaces.get_nearest_general(43.6471642, -79.38705139999999))
 
 
