@@ -45,5 +45,5 @@ def age_func(x):
     elif x < 65:
         return -10*x/55 + 160/11
     else:
-        return 0
+        return 1
 

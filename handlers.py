@@ -41,7 +41,6 @@ class UserHandler(BaseHandler):
 
 
 class DataHandler(BaseHandler):
-
     def day_of_week(self, x):
         efunc = math.exp(-1*pow(x - 5.3, 2)/1.5)
         return 1+efunc
@@ -58,9 +57,11 @@ class DataHandler(BaseHandler):
         return 6/x - 2
 
     def time_of_day(self, x):
+        if x > 12:
+            x = x - 24
         if -6 < x and x < 6:
-            return math.exp(-1.0*x*x/20)*1.5
-        return 0.1
+            return math.exp(-1.0*x*x/20)*1.5 + 1
+        return 1
 
     def proximity_func_bar(self, x):
         return math.exp(-1.0*x*x/8192)*4 + 1
@@ -71,7 +72,7 @@ class DataHandler(BaseHandler):
     def proximity_func_casino(self, x):
         return math.exp(-1.0*x*x/8192)*2 + 1
 
-    def proximity_func_danger(x, count):
+    def proximity_func_danger(self, x, count):
         if count < 1:
             return 1
         multiplier = ((-1)/x+2)/2
@@ -80,7 +81,7 @@ class DataHandler(BaseHandler):
     def age_func(self, x):
         if x < 12:
             return x/17
-        elif x < 25:
+        elif x <25:
             return pow(x-12,1.7)/8.5 + 12/17
         elif x < 65:
             return -10*x/55 + 160/11
